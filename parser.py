@@ -68,8 +68,7 @@ def extractCacheInfo(cacheHtml,link):
 	for elem in tree.xpath('//div[@class="cache-description"]'):
 		cacheDesc = cacheDesc + etree.tostring(elem, pretty_print=True)
 	
-	cacheID		= link[link.rfind('/'):]
-	print(cacheID)
+	cacheID		= link[link.rfind('/')+1:]
 	
 	#Töödeldud andmed
 	cacheLocN	= cacheLoc[:9].replace(',','.')
@@ -106,6 +105,8 @@ def extractCacheInfo(cacheHtml,link):
 						'Owner'	: cacheOwner,
 						'PlDt'	: cachePlDt,
 						'PlBy'	: cachePlBy,
-						'State'	: cacheState}
+						'State'	: cacheState,
+						'ID'		: cacheID,
+						'Link'	: link}
 	return cacheData
 

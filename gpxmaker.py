@@ -73,12 +73,16 @@ def makeGpx(cachedata):
 	wpt.attrib['lat']			= cachedata['Lat']
 	wpt.attrib['lon']			= cachedata['Lon']
 	wpt_time.text				= cachedata['PlDt']
-	wpt_name.text 				= "GP-"+cachedata['Name']
+	wpt_name.text 				= "GP"+cachedata['ID']
 	wpt_desc.text 				= cachedata['Name'] + ' Peitja: '+cachedata['PlBy']+' '+ cachedata['Type'] +' ('+ cachedata['Hide'] + '/' + cachedata['Terrain'] + ')' 
 	wpt_url.text				= 'Geopeituse aarde link' #TODO
 	wpt_urlname.text			= 'GP - '+cachedata['Name']
 	wpt_sym.text				= 'Geocache'
 	wpt_type.text				= 'Geocache|'+cachedata['Type']
+	
+	gs_cache.attrib['id']			= cachedata['ID']
+	gs_cache.attrib['available']	= cachedata['Avail']
+	gs_cache.attrib['archived']	= cachedata['Arch']
 	
 	gs_name.text				= cachedata['Name']
 	gs_placed_by.text			= cachedata['PlBy']
