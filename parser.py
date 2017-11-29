@@ -1,5 +1,7 @@
 # coding=utf-8
 from lxml import html,etree
+import makereq
+
 
 def valueMapper(parsedtype, parsedvalue):
    cacheType      = {"Tavaline aare" : "Traditional Cache",
@@ -7,10 +9,14 @@ def valueMapper(parsedtype, parsedvalue):
                      "Multiaare" : "Multi Cache"} 
    
    cacheArchived  = {"!!! Arhiveeritud !!!" : "True",
-                     "!!! Ajutiselt kättesaamatu !!!" : "False"}
+                     "!!! Ajutiselt kättesaamatu !!!" : "False",
+                     "!!! Vajab hooldust !!!" : "False",
+                     "" : "False"}
    
    cacheAvailable = {"!!! Arhiveeritud !!!" : "False",
-                     "!!! Ajutiselt kättesaamatu !!!" : "False"}
+                     "!!! Ajutiselt kättesaamatu !!!" : "False",
+                     "!!! Vajab hooldust !!!":"True",
+                     "" : "True"}
    
    cacheSize      = {"normaalne" : "Regular",
                      "mikro" : "Micro",
@@ -60,8 +66,9 @@ def extractCacheInfo(cacheHtml,link):
    cacheDif    = extractor(tree,'//div[@class="cacheinfo"]/table/tr[6]/td/text()',0)
    cacheSize   = extractor(tree,'//div[@class="cacheinfo"]/table/tr[6]/td/text()',1)
    cacheStatus = extractor(tree,'//div[@class="cacheinfo"]/div/h1[2]/font/text()',0)
-   cacheHint   = extractor(tree,'//span[@id="cachehint"]/text()',0)
+   cacheHint   = extractor(tree,'//span[@id="cachehint"]/text()',0) or '-'
    cachePlaced = extractor(tree,'//div[@class="cacheinfo"]/div/p/text()',0)
+   cachePlBy   = extractor(tree,'//div[@class="cacheinfo"]/div/p/a/text()',0) or '-'
    cacheState  = extractor(tree,'//div[@class="cacheinfo"]/table/tr[5]/td/b[2]/text()',0)
    
    cacheDesc   = ''
@@ -74,12 +81,12 @@ def extractCacheInfo(cacheHtml,link):
    cacheLocN   = cacheLoc[:9].replace(',','.')
    cacheLocE   = cacheLoc[10:].replace(',','.')
    cacheHid    = cacheDif[10:14]
-   cacheTerr   = cacheDif[23:]
+   cacheTerr   = cacheDif[23:] 
    cachePlDt   = cachePlaced[7:17]
-   cachePlBy   = cachePlaced[18:(cachePlaced.index('[')-1)]
-   cacheOwner  = cachePlaced[cachePlaced.index('[')+1:cachePlaced.index(']')]
-
-   #Lisamappingut vajavad andmedelem
+   cachePlBy   = cachePlaced[18:(cachePlaced.index('[')-1)] or '?'
+   cacheOwner  = cachePlaced[cachePlaced.index('[')+1:cachePlaced.index(']')] 
+   
+   #Lisamappingut vajavad andmed
    cacheAvail  = valueMapper('cacheAvailable', cacheStatus)
    cacheArch   = valueMapper('cacheArchived', cacheStatus)
    cacheType   = valueMapper('cacheType', cacheType)
@@ -108,5 +115,5 @@ def extractCacheInfo(cacheHtml,link):
                   'State'  : cacheState,
                   'ID'     : cacheID,
                   'Link'   : link}
+                  
    return cacheData
-

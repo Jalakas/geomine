@@ -6,7 +6,7 @@ import sys
 
 def getUrlAndNum(inStr):
    cache_id = ''
-   if len(inStr) > 0 and len(inStr) <=4:
+   if len(inStr) >= 0 and len(inStr) <=4:
       try: 
          cache_id    = int(inStr)
       except:
@@ -26,7 +26,7 @@ def getUrlAndNum(inStr):
          return None
    return cache_id
 
-print('Geopeituse GPX failide koostaja')
+print('### Geopeitus.ee GPX failide koostaja ###')
 while True:
    print('Sisesta link või aarde number: ')
    inStr = sys.stdin.readline(100).strip()
@@ -44,7 +44,11 @@ while True:
    cachedata=parser.extractCacheInfo(cacheHtml,cacheLink)
    gpx=gpxmaker.makeGpx(cachedata)
 
-   fw = open('GP'+str(cacheNum)+'.gpx','w')
-   fw.write(gpx)
-   fw.close
+   try:
+      fw = open('GP'+str(cacheNum)+'.gpx','w')
+      fw.write(gpx)
+      fw.close
+      print('Aardeinfo salvestatud: '+'GP'+str(cacheNum)+'.gpx')
+   except:
+      print('Viga! - Ei õnnestunud faili salvestada!')
 

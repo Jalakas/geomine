@@ -55,6 +55,16 @@ def makeGpx(cachedata):
    gs_short_desc     = etree.SubElement(gs_cache,"{"+gsurl+"}short_description")
    gs_long_desc      = etree.SubElement(gs_cache,"{"+gsurl+"}long_description")
    gs_encoded_hints  = etree.SubElement(gs_cache,"{"+gsurl+"}encoded_hints")
+   gs_logs           = etree.SubElement(gs_cache,"{"+gsurl+"}logs")
+   
+   i=0
+   while i<5:
+      logs_log       = etree.SubElement(gs_logs,"{"+gsurl+"}log")
+      log_date       = etree.SubElement(logs_log,"{"+gsurl+"}date")
+      log_type       = etree.SubElement(logs_log,"{"+gsurl+"}type")
+      log_finder     = etree.SubElement(logs_log,"{"+gsurl+"}finder")
+      log_text       = etree.SubElement(logs_log,"{"+gsurl+"}text")
+      i=i+1
    
    #Fill the XML
    name.text               = "Geopeituse aare"
@@ -75,7 +85,7 @@ def makeGpx(cachedata):
    wpt_time.text           = cachedata['PlDt']
    wpt_name.text           = "GP"+cachedata['ID']
    wpt_desc.text           = cachedata['Name'] + ' Peitja: '+cachedata['PlBy']+' '+ cachedata['Type'] +' ('+ cachedata['Hide'] + '/' + cachedata['Terrain'] + ')' 
-   wpt_url.text            = 'Geopeituse aarde link' #TODO
+   wpt_url.text            = cachedata['Link']
    wpt_urlname.text        = 'GP - '+cachedata['Name']
    wpt_sym.text            = 'Geocache'
    wpt_type.text           = 'Geocache|'+cachedata['Type']
