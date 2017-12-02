@@ -24,7 +24,7 @@ def valueMapper(parsedType, parsedValue):
                      "väike" : "Small",
                      "suur" : "Large"}
    
-   logType        = {"/ug/icons/emoticon_smile.png" : "Leidis",
+   logType        = {"/ug/icons/emoticon_smile.png" : "Found it",
                      "/ug/icons/emoticon_unhappy2.png" : "Ei leidnud",
                      "/ug/icons/comment.png" : "Kommenteeris",
                      "/ug/icons/wrench_orange.png" : "Soovis hooldamist",
@@ -56,12 +56,12 @@ def extractor(tree,xpath,n): #Xpath ja mitmes element massiivist
    return cacheProperty
    
 #Funktsioon kontrollib, kas sisend on kuupäev   
-def isValueDate(string):
+def isValueDate(string,fmt):
    try: 
-      datetime.strptime(string, '%d.%m.%Y %H:%M:%S')
-      return True
+      l_time=datetime.strptime(string, fmt)
+      return l_time
    except ValueError:
-      return False
+      return None
 
 #Peameetod andmete lugemiseks HTML-ist
 def extractCacheInfo(cacheHtml,link,logCount):
@@ -88,7 +88,7 @@ def extractCacheInfo(cacheHtml,link,logCount):
    logFinders  = map(lambda x: x.encode(encoding='UTF-8',errors='ignore'), logFinders[:logCount])
    logTypes    = valueMapper('logType',tree.xpath('//div[@class="eventlog"]/a[1]/img[1]/@src'))[:logCount]
    logDates    = tree.xpath('//div[@class="eventlog"]/a[1]/@title')[:logCount]
-   logDates    = map(lambda x: x[-19:] if isValueDate(x[-19:]) else None,logDates)
+   logDates    = map(lambda x: isValueDate(x[-19:],'%d.%m.%Y %H:%M:%S'),logDates)
    logTexts0   = tree.xpath('//div[@class="eventlog"]')[:logCount]
    logTexts    = []
 

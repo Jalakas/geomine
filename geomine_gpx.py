@@ -26,11 +26,14 @@ def getUrlAndNum(inStr):
          return None
    return cache_id
 
-print('### Geopeitus.ee GPX failide koostaja ###')
+global version
+version='0.1.0'
+
+print('### Geopeitus.ee GPX failide koostaja v:'+version+' ###')
 print('-----------------------------------------')
 
 while True:
-   print('Sisesta link või aarde number: ')
+   print('   Sisesta link või aarde number: ')
    inStr = sys.stdin.readline(100).strip()
    if inStr == 'exit':
       break
@@ -43,12 +46,12 @@ while True:
    cacheHtml=cacheRaw[1]
    cacheLink=cacheRaw[0]
 
-   cachedata=parser.extractCacheInfo(cacheHtml,cacheLink,5)
+   cachedata=parser.extractCacheInfo(cacheHtml,cacheLink,10)
    gpx=gpxmaker.makeGpx(cachedata)
 
    try:
       gpx.write(open('GP'+str(cacheNum)+'.gpx', 'w'), encoding='UTF-8',pretty_print=True)
-      print('Aardeinfo salvestatud: '+'GP'+str(cacheNum)+'.gpx')
+      print('   Aardeinfo salvestatud: '+'GP'+str(cacheNum)+'.gpx')
    except:
-      print('Viga! - Ei õnnestunud faili salvestada!')
+      print('   Viga! - Ei õnnestunud faili salvestada!')
 

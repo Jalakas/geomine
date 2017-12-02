@@ -59,7 +59,10 @@ def makeGpx(cachedata):
    
    #Make input text XML-compatible
    for key, value in cachedata.items():
-      cachedata[key]=map(lambda x: x.decode(encoding='UTF-8',errors='ignore').encode('ascii','xmlcharrefreplace'),value)
+      try:
+         cachedata[key]=map(lambda x: x.decode(encoding='UTF-8',errors='ignore').encode('ascii','xmlcharrefreplace'),value)
+      except:
+         cachedata[key]=cachedata[key]
          
    #Fill the XML
    name.text               = "Geopeituse aare"
@@ -108,13 +111,13 @@ def makeGpx(cachedata):
       logs_log.attrib['id'] = cachedata['l_id'][i]
       
       log_date       = etree.SubElement(logs_log,"{"+gsurl+"}date")
-      log_date.text  = cachedata['l_date'][i]
+      log_date.text  = cachedata['l_date'][i].strftime("%Y-%m-%dT%H:%M:%S")
       
       log_type       = etree.SubElement(logs_log,"{"+gsurl+"}type")
       log_type.text  = cachedata['l_type'][i]
       
       log_finder     = etree.SubElement(logs_log,"{"+gsurl+"}finder")
-      log_finder.text= cachedata['l_find'][i]    
+      log_finder.text= cachedata['l_find'][i]
        
       log_text       = etree.SubElement(logs_log,"{"+gsurl+"}text")
       log_text.text  = cachedata['l_text'][i]  
