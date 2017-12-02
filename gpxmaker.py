@@ -70,36 +70,36 @@ def makeGpx(cachedata):
    urlname.text            = "Geopeitus.ee"
    time.text               = strftime("%Y-%m-%d%a%H:%M:%S", gmtime())
    keywords.text           = "cache, geocache"
-   bounds.attrib['minlat'] = cachedata['Lat'][0]
-   bounds.attrib['minlon'] = cachedata['Lon'][0]
-   bounds.attrib['maxlat'] = cachedata['Lat'][0]
-   bounds.attrib['maxlon'] = cachedata['Lon'][0]
+   bounds.attrib['minlat'] = ''.join(cachedata['Lat'])
+   bounds.attrib['minlon'] = ''.join(cachedata['Lon'])
+   bounds.attrib['maxlat'] = ''.join(cachedata['Lat'])
+   bounds.attrib['maxlon'] = ''.join(cachedata['Lon'])
    
-   wpt.attrib['lat']       = cachedata['Lat'][0]
-   wpt.attrib['lon']       = cachedata['Lon'][0]
-   wpt_time.text           = cachedata['PlDt'][0]
-   wpt_name.text           = "GP"+cachedata['ID'][0]
-   wpt_desc.text           = cachedata['Name'][0] + ' Peitja: '+cachedata['PlBy'][0]+' '+ cachedata['Type'][0] +' ('+ cachedata['Hide'][0] + '/' + cachedata['Terrain'][0] + ')' 
-   wpt_url.text            = cachedata['Link'][0]
-   wpt_urlname.text        = 'GP - '+cachedata['Name'][0]
+   wpt.attrib['lat']       = ''.join(cachedata['Lat'])
+   wpt.attrib['lon']       = ''.join(cachedata['Lon'])
+   wpt_time.text           = ''.join(cachedata['PlDt'])
+   wpt_name.text           = "GP"+''.join(cachedata['ID'])
+   wpt_desc.text           = ''.join(cachedata['Name']) + ' Peitja: '+''.join(cachedata['PlBy'])+' '+ ''.join(cachedata['Type']) +' ('+ ''.join(cachedata['Hide']) + '/' + ''.join(cachedata['Terrain']) + ')' 
+   wpt_url.text            = ''.join(cachedata['Link'])
+   wpt_urlname.text        = 'GP - '+''.join(cachedata['Name'])
    wpt_sym.text            = 'Geocache'
-   wpt_type.text           = 'Geocache|'+cachedata['Type'][0]
+   wpt_type.text           = 'Geocache|'+''.join(cachedata['Type'])
    
-   gs_cache.attrib['id']         = cachedata['ID'][0]
-   gs_cache.attrib['available']  = cachedata['Avail'][0]
-   gs_cache.attrib['archived']   = cachedata['Arch'][0]
+   gs_cache.attrib['id']         = ''.join(cachedata['ID'])
+   gs_cache.attrib['available']  = ''.join(cachedata['Avail'])
+   gs_cache.attrib['archived']   = ''.join(cachedata['Arch'])
    
-   gs_name.text            = cachedata['Name'][0]
-   gs_placed_by.text       = cachedata['PlBy'][0]
-   gs_owner.text           = cachedata['Owner'][0]
-   gs_type.text            = cachedata['Type'][0]
-   gs_container.text       = cachedata['Size'][0]
-   gs_difficulty.text      = cachedata['Hide'][0]
-   gs_terrain.text         = cachedata['Terrain'][0]
+   gs_name.text            = ''.join(cachedata['Name'])
+   gs_placed_by.text       = ''.join(cachedata['PlBy'])
+   gs_owner.text           = ''.join(cachedata['Owner'])
+   gs_type.text            = ''.join(cachedata['Type'])
+   gs_container.text       = ''.join(cachedata['Size'])
+   gs_difficulty.text      = ''.join(cachedata['Hide'])
+   gs_terrain.text         = ''.join(cachedata['Terrain'])
    gs_country.text         = "Eesti"
-   gs_state.text           = cachedata['State'][0]
-   gs_long_desc.text       = cachedata['Desc'][0]
-   gs_encoded_hints.text   = cachedata['Hint'][0]
+   gs_state.text           = ''.join(cachedata['State'])
+   gs_long_desc.text       = ''.join(cachedata['Desc'])
+   gs_encoded_hints.text   = ''.join(cachedata['Hint'])
    
    #Logs
    i=0
