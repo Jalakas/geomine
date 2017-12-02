@@ -1,3 +1,4 @@
 *.pyc
 GP*
 *gpx
+.directory

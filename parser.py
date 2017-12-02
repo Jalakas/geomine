@@ -1,9 +1,10 @@
 # coding=utf-8
 from lxml import html,etree
+from datetime import datetime
 import makereq
 
-
-def valueMapper(parsedtype, parsedvalue):
+#Funktsioon teisendab veebist loetud väärtused XML-i jaoks sobivaks
+def valueMapper(parsedType, parsedValue):
    cacheType      = {"Tavaline aare" : "Traditional Cache",
                      "Mõistatusaare" : "Mystery Cache",
                      "Multiaare" : "Multi Cache"} 
@@ -23,43 +24,50 @@ def valueMapper(parsedtype, parsedvalue):
                      "väike" : "Small",
                      "suur" : "Large"}
    
-   if parsedtype == "cacheAvailable":
-      try:
-         return cacheAvailable[parsedvalue.encode(encoding='UTF-8')]
-      except:
-         return None
-   elif parsedtype == "cacheArchived":
-      try:
-         return cacheArchived[parsedvalue.encode(encoding='UTF-8')]
-      except:
-         return None
-   elif parsedtype == "cacheType":
-      try:
-         return cacheType[parsedvalue.encode(encoding='UTF-8')]
-      except:
-         return None
-   elif parsedtype == "cacheSize":
-      try:
-         return cacheSize[parsedvalue.encode(encoding='UTF-8')]
-      except:
-         return None
+   logType        = {"/ug/icons/emoticon_smile.png" : "Leidis",
+                     "/ug/icons/emoticon_unhappy2.png" : "Ei leidnud",
+                     "/ug/icons/comment.png" : "Kommenteeris",
+                     "/ug/icons/wrench_orange.png" : "Soovis hooldamist",
+                     "/ug/icons/wrench.png" : "Hooldas",
+                     "/ug/icons/exclamation.png" : "Soovis arhiveerimist"}
+   
+   if parsedType == "cacheAvailable":
+      return list(map(cacheAvailable.get, parsedValue))
+   elif parsedType == "cacheArchived":
+      return list(map(cacheArchived.get, parsedValue))
+   elif parsedType == "cacheType":
+      return list(map(cacheType.get, parsedValue))
+   elif parsedType == "cacheSize":
+      return list(map(cacheSize.get, parsedValue))
+   elif parsedType == "logType":
+      return list(map(logType.get, parsedValue))
+   else:
+      return None
 
 #Funktsioon parsib Xpathi järgi htmlist välja
 def extractor(tree,xpath,n): #Xpath ja mitmes element massiivist
    try:
       if n is None:
-         cacheProperty = str(tree.xpath(xpath)).lstrip('\r\n').rstrip('\r\n').lstrip(' ').rstrip(' ')
+         cacheProperty = str(tree.xpath(xpath)).lstrip('\r\n').rstrip('\r\n').lstrip(' ').rstrip(' ').encode(encoding='UTF-8',errors='ignore')
       else:
-         cacheProperty = tree.xpath(xpath)[n].lstrip('\r\n').rstrip('\r\n').lstrip(' ').rstrip(' ')
+         cacheProperty = tree.xpath(xpath)[n].lstrip('\r\n').rstrip('\r\n').lstrip(' ').rstrip(' ').encode(encoding='UTF-8',errors='ignore')
    except:
       cacheProperty = ''
    return cacheProperty
+   
+#Funktsioon kontrollib, kas sisend on kuupäev   
+def isValueDate(string):
+   try: 
+      datetime.strptime(string, '%d.%m.%Y %H:%M:%S')
+      return True
+   except ValueError:
+      return False
 
-
-def extractCacheInfo(cacheHtml,link):
+#Peameetod andmete lugemiseks HTML-ist
+def extractCacheInfo(cacheHtml,link,logCount):
    tree=html.fromstring(cacheHtml)
    
-   #Esmased andmed
+   #Esmased töötlemata andmed
    cacheName   = extractor(tree,'//div[@class="cacheinfo"]/div/h1/text()',1)
    cacheLoc    = extractor(tree,'//div[@class="cacheinfo"]/table/tr[3]/td/b[1]/text()',0)
    cacheType   = extractor(tree,'//div[@class="cacheinfo"]/table/tr[5]/td/b[1]/text()',0)
@@ -74,9 +82,21 @@ def extractCacheInfo(cacheHtml,link):
    cacheDesc   = ''
    for elem in tree.xpath('//div[@class="cache-description"]'):
       cacheDesc = cacheDesc + etree.tostring(elem, pretty_print=True)
-   
+
+   logIds      = tree.xpath('//div[@class="eventlog"]/a[1]/@name')[:logCount]
+   logFinders  = tree.xpath('//div[@class="eventlog"]/b[2]/text()')
+   logFinders  = map(lambda x: x.encode(encoding='UTF-8',errors='ignore'), logFinders[:logCount])
+   logTypes    = valueMapper('logType',tree.xpath('//div[@class="eventlog"]/a[1]/img[1]/@src'))[:logCount]
+   logDates    = tree.xpath('//div[@class="eventlog"]/a[1]/@title')[:logCount]
+   logDates    = map(lambda x: x[-19:] if isValueDate(x[-19:]) else None,logDates)
+   logTexts0   = tree.xpath('//div[@class="eventlog"]')[:logCount]
+   logTexts    = []
+
+   for i,elem in enumerate(logTexts0,1):
+      logTexts.append(''.join(tree.xpath('//div[@class="eventlog"]['+str(i)+']/p/text()')))
+   logTexts  = map(lambda x: x.encode(encoding='UTF-8',errors='ignore'), logTexts)
    cacheID     = link[link.rfind('/')+1:]
-   
+
    #Töödeldud andmed
    cacheLocN   = cacheLoc[:9].replace(',','.')
    cacheLocE   = cacheLoc[10:].replace(',','.')
@@ -87,10 +107,10 @@ def extractCacheInfo(cacheHtml,link):
    cacheOwner  = cachePlaced[cachePlaced.index('[')+1:cachePlaced.index(']')] 
    
    #Lisamappingut vajavad andmed
-   cacheAvail  = valueMapper('cacheAvailable', cacheStatus)
-   cacheArch   = valueMapper('cacheArchived', cacheStatus)
-   cacheType   = valueMapper('cacheType', cacheType)
-   cacheSize   = valueMapper('cacheSize', cacheSize)
+   cacheAvail  = valueMapper('cacheAvailable', [cacheStatus])[0]
+   cacheArch   = valueMapper('cacheArchived', [cacheStatus])[0]
+   cacheType   = valueMapper('cacheType', [cacheType])[0]
+   cacheSize   = valueMapper('cacheSize', [cacheSize])[0]
 
    i=0
    cacheDescFormatted = ''
@@ -114,6 +134,10 @@ def extractCacheInfo(cacheHtml,link):
                   'PlBy'   : cachePlBy,
                   'State'  : cacheState,
                   'ID'     : cacheID,
-                  'Link'   : link}
-                  
+                  'Link'   : link,
+                  'l_id'   : logIds,
+                  'l_find' : logFinders,
+                  'l_type' : logTypes,
+                  'l_date' : logDates,
+                  'l_text' : logTexts}
    return cacheData
