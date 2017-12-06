@@ -1,12 +1,13 @@
 # coding=utf-8
+"""Groundspeak GPX formaadile vastava XML-i loomine"""
 from lxml import etree
-# from lxml.builder import ElementMaker
 from time import gmtime
 from time import strftime
 
 
 def makeGpx(cachedata):
-
+    """Groundspeak GPX formaadile vastava XML-i loomine"""
+    
     # XML namespace and header
     XMLSchInst = "http://www.w3.org/2001/XMLSchema-instance"
     XSLSchInst = "http://www.w3.org/2001/XMLSchema"
@@ -15,7 +16,7 @@ def makeGpx(cachedata):
     gs = "groundspeak"
     gsurl = "http://www.groundspeak.com/cache/1/0"
 
-    version = "1.0"
+    version = "2.0"
     creator = "Geomine"
 
     NS_MAP = {"xsi": XMLSchInst,
@@ -59,28 +60,13 @@ def makeGpx(cachedata):
     gs_terrain = etree.SubElement(gs_cache, "{" + gsurl + "}terrain")
     gs_country = etree.SubElement(gs_cache, "{" + gsurl + "}country")
     gs_state = etree.SubElement(gs_cache, "{" + gsurl + "}state")
-#    gs_short_desc = etree.SubElement(
-#        gs_cache, "{" + gsurl + "}short_description")
     gs_long_desc = etree.SubElement(
         gs_cache, "{" + gsurl + "}long_description")
     gs_encoded_hints = etree.SubElement(
         gs_cache, "{" + gsurl + "}encoded_hints")
     gs_logs = etree.SubElement(gs_cache, "{" + gsurl + "}logs")
 
-    # Make input text XML-compatible
-    for key, value in cachedata.items():
-        try:
-            cachedata[key] = map(
-                lambda x: x.decode(
-                    encoding='UTF-8',
-                    errors='ignore').encode(
-                    'ascii',
-                    'xmlcharrefreplace'),
-                value)
-        except BaseException:
-            cachedata[key] = cachedata[key]
-
-    # Fill the XML
+    # XML-i elementide väärtustamine
     name.text = "Geopeituse aare"
     desc.text = "Aardeinfo Geopeitus.ee lehelt"
     author.text = ""
@@ -89,56 +75,55 @@ def makeGpx(cachedata):
     urlname.text = "Geopeitus.ee"
     time.text = strftime("%Y-%m-%d%a%H:%M:%S", gmtime())
     keywords.text = "cache, geocache"
-    bounds.attrib['minlat'] = ''.join(cachedata['Lat'])
-    bounds.attrib['minlon'] = ''.join(cachedata['Lon'])
-    bounds.attrib['maxlat'] = ''.join(cachedata['Lat'])
-    bounds.attrib['maxlon'] = ''.join(cachedata['Lon'])
+    bounds.attrib['minlat'] = cachedata['Lat']
+    bounds.attrib['minlon'] = cachedata['Lon']
+    bounds.attrib['maxlat'] = cachedata['Lat']
+    bounds.attrib['maxlon'] = cachedata['Lon']
 
-    wpt.attrib['lat'] = ''.join(cachedata['Lat'])
-    wpt.attrib['lon'] = ''.join(cachedata['Lon'])
-    wpt_time.text = ''.join(cachedata['PlDt'])
-    wpt_name.text = "GP" + ''.join(cachedata['ID'])
-    wpt_desc.text = ''.join(cachedata['Name']) + ' Peitja: ' + ''.join(cachedata['PlBy']) + ' ' + ''.join(
-        cachedata['Type']) + ' (' + ''.join(cachedata['Hide']) + '/' + ''.join(cachedata['Terrain']) + ')'
-    wpt_url.text = ''.join(cachedata['Link'])
-    wpt_urlname.text = 'GP - ' + ''.join(cachedata['Name'])
+    wpt.attrib['lat'] = cachedata['Lat']
+    wpt.attrib['lon'] = cachedata['Lon']
+    wpt_time.text = cachedata['PlDt'].strftime("%Y-%m-%dT%H:%M:%S")
+    wpt_name.text = "GP" + str(cachedata['ID'])
+    wpt_desc.text = (str(cachedata['Name']) + ' Peitja: ' + str(cachedata['PlBy']) + ' ' + str(
+        cachedata['Type']) + ' (' + str(cachedata['Hide']) + '/' + str(cachedata['Terrain']) + ')').encode('ascii', 'xmlcharrefreplace')
+    wpt_url.text = str(cachedata['Link'])
+    wpt_urlname.text = ('GP - ' + cachedata['Name']).encode('ascii', 'xmlcharrefreplace')
     wpt_sym.text = 'Geocache'
-    wpt_type.text = 'Geocache|' + ''.join(cachedata['Type'])
+    wpt_type.text = ('Geocache|' + cachedata['Type']).encode('ascii', 'xmlcharrefreplace')
 
-    gs_cache.attrib['id'] = ''.join(cachedata['ID'])
-    gs_cache.attrib['available'] = ''.join(cachedata['Avail'])
-    gs_cache.attrib['archived'] = ''.join(cachedata['Arch'])
+    gs_cache.attrib['id'] = str(cachedata['ID'])
+    gs_cache.attrib['available'] = str(cachedata['Avail'])
+    gs_cache.attrib['archived'] = str(cachedata['Arch'])
 
-    gs_name.text = ''.join(cachedata['Name'])
-    gs_placed_by.text = ''.join(cachedata['PlBy'])
-    gs_owner.text = ''.join(cachedata['Owner'])
-    gs_type.text = ''.join(cachedata['Type'])
-    gs_container.text = ''.join(cachedata['Size'])
-    gs_difficulty.text = ''.join(cachedata['Hide'])
-    gs_terrain.text = ''.join(cachedata['Terrain'])
+    gs_name.text = str(cachedata['Name']).encode('ascii', 'xmlcharrefreplace')
+    gs_placed_by.text = str(cachedata['PlBy']).encode('ascii', 'xmlcharrefreplace')
+    gs_owner.text = str(cachedata['Owner']).encode('ascii', 'xmlcharrefreplace')
+    gs_type.text = str(cachedata['Type']).encode('ascii', 'xmlcharrefreplace')
+    gs_container.text = str(cachedata['Size']).encode('ascii', 'xmlcharrefreplace')
+    gs_difficulty.text = str(cachedata['Hide']).encode('ascii', 'xmlcharrefreplace')
+    gs_terrain.text = str(cachedata['Terrain']).encode('ascii', 'xmlcharrefreplace')
     gs_country.text = "Eesti"
-    gs_state.text = ''.join(cachedata['State'])
-    gs_long_desc.text = ''.join(cachedata['Desc'])
-    gs_encoded_hints.text = ''.join(cachedata['Hint'])
+    gs_state.text = str(cachedata['State']).encode('ascii', 'xmlcharrefreplace')
+    gs_long_desc.text = str(cachedata['Desc']).encode('ascii', 'xmlcharrefreplace')
+    gs_encoded_hints.text = str(cachedata['Hint']).encode('ascii', 'xmlcharrefreplace')
 
-    # Logs
+    # Logid
     i = 0
-    while i < len(cachedata['l_id']):
+    
+    for i in enumerate(cachedata['l_id']):
         logs_log = etree.SubElement(gs_logs, "{" + gsurl + "}log")
-        logs_log.attrib['id'] = cachedata['l_id'][i]
+        logs_log.attrib['id'] = list(cachedata['l_id'])[i[0]].encode('ascii', 'xmlcharrefreplace')
 
         log_date = etree.SubElement(logs_log, "{" + gsurl + "}date")
-        log_date.text = cachedata['l_date'][i].strftime("%Y-%m-%dT%H:%M:%S")
+        log_date.text = list(cachedata['l_date'])[i[0]].strftime("%Y-%m-%dT%H:%M:%S")
 
         log_type = etree.SubElement(logs_log, "{" + gsurl + "}type")
-        log_type.text = cachedata['l_type'][i]
+        log_type.text = list(cachedata['l_type'])[i[0]].encode('ascii', 'xmlcharrefreplace')
 
         log_finder = etree.SubElement(logs_log, "{" + gsurl + "}finder")
-        log_finder.text = cachedata['l_find'][i]
+        log_finder.text = list(cachedata['l_find'])[i[0]].encode('ascii', 'xmlcharrefreplace')
 
         log_text = etree.SubElement(logs_log, "{" + gsurl + "}text")
-        log_text.text = cachedata['l_text'][i]
-
-        i += 1
+        log_text.text = list(cachedata['l_text'])[i[0]].encode('ascii', 'xmlcharrefreplace')
 
     return(etree.ElementTree(root))

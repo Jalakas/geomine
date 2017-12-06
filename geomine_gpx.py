@@ -1,45 +1,30 @@
 # coding=utf-8
+"""Geopeitus.ee aardeinfo Garmin GPX formaati salvestamiseks"""
 import makereq
 import parser
 import gpxmaker
 import sys
 
 
-def getUrlAndNum(inStr):
-    cache_id = ''
-    if len(inStr) >= 0 and len(inStr) <= 4:
-        try:
-            cache_id = int(inStr)
-        except BaseException:
-            print('   Sisestatu pole aarde number')
-            return None
-    if len(inStr) > 4:
-        try:
-            search_str = 'geopeitus.ee/aare/'
-            cache_index = inStr.find(search_str)
-            if cache_index >= 0:
-                cache_id = int(inStr[(cache_index + len(search_str)):])
-            else:
-                print('   Tundmatu link')
-                return None
-        except BaseException:
-            print('   Tundmatu link')
-            return None
-    return cache_id
-
-
 global version
-version = '0.1.0'
+version = '0.2.0'
 
 print('### Geopeitus.ee GPX failide koostaja v:' + version + ' ###')
 print('-----------------------------------------')
+if sys.version_info[0] != 3:
+    print('   VIGA! Toetatud on ainult Python 3!')
+    sys.exit(0)
+    
+if sys.version_info[1] != 6:
+    print('   Hoiatus! Ei ole Python 3.6. Programm ei pruugi töötada korrektselt!')
+
 
 while True:
     print('   Sisesta link või aarde number: ')
     inStr = sys.stdin.readline(100).strip()
     if inStr == 'exit':
         break
-    cacheNum = getUrlAndNum(inStr)
+    cacheNum = parser.getNumFromUrl(inStr)
 
     if cacheNum is None:
         print('   Arusaamatu sisend!\n   Sisesta aare kujul \'1043\' või \'http://www.geopeitus.ee/aare/1043\'')
@@ -52,7 +37,7 @@ while True:
     gpx = gpxmaker.makeGpx(cachedata)
 
     try:
-        gpx.write(open('GP' + str(cacheNum) + '.gpx', 'w'),
+        gpx.write(open('GP' + str(cacheNum) + '.gpx', 'wb'),
                   encoding='UTF-8', pretty_print=True)
         print('   Aardeinfo salvestatud: ' + 'GP' + str(cacheNum) + '.gpx')
     except BaseException:
