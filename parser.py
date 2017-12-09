@@ -112,8 +112,8 @@ def extractCacheInfo(cacheHtml, link, logCount=10):
 
     # Aarde keerukus ja maastik
     cacheDif = tree.xpath('//div[@class="cacheinfo"]/table/tr[6]/td/text()')[0]
-    cacheHid = cacheDif[10:14]
-    cacheTerr = cacheDif[23:]
+    cacheHid = cacheDif[10:14].lstrip(' ').rstrip(' ')
+    cacheTerr = cacheDif[23:].lstrip(' ').rstrip(' ')
 
     # Aarde suurus
     cacheSize = tree.xpath('//div[@class="cacheinfo"]/table/tr[6]/td/text()')[1]
@@ -205,4 +205,5 @@ def extractCacheInfo(cacheHtml, link, logCount=10):
                  'l_type': logTypes,
                  'l_date': logDates,
                  'l_text': logTexts}
+                 
     return cacheData

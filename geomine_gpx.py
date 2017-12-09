@@ -9,7 +9,7 @@ import sys
 
 
 global version
-version = '0.2.0'
+version = '0.3.0'
 
 print(('### Geopeitus.ee GPX failide koostaja v:' + version + ' ###'))
 print('-----------------------------------------')
