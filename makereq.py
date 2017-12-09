@@ -1,6 +1,9 @@
-# coding=utf-8
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """HTML-i hankimine"""
 import requests
+
 
 def makeReq(link):
     """Päringu teostamine html-i allalaadimiseks"""
