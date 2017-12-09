@@ -1,4 +1,6 @@
-# coding=utf-8
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """Geopeitus.ee aardeinfo Garmin GPX formaati salvestamiseks"""
 import makereq
 import parser
@@ -9,12 +11,12 @@ import sys
 global version
 version = '0.2.0'
 
-print('### Geopeitus.ee GPX failide koostaja v:' + version + ' ###')
+print(('### Geopeitus.ee GPX failide koostaja v:' + version + ' ###'))
 print('-----------------------------------------')
 if sys.version_info[0] != 3:
     print('   VIGA! Toetatud on ainult Python 3!')
     sys.exit(0)
-    
+
 if sys.version_info[1] != 6:
     print('   Hoiatus! Ei ole Python 3.6. Programm ei pruugi töötada korrektselt!')
 
@@ -39,6 +41,6 @@ while True:
     try:
         gpx.write(open('GP' + str(cacheNum) + '.gpx', 'wb'),
                   encoding='UTF-8', pretty_print=True)
-        print('   Aardeinfo salvestatud: ' + 'GP' + str(cacheNum) + '.gpx')
+        print(('   Aardeinfo salvestatud: ' + 'GP' + str(cacheNum) + '.gpx'))
     except BaseException:
         print('   Viga! - Ei õnnestunud faili salvestada!')

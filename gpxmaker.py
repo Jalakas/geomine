@@ -1,4 +1,6 @@
-# coding=utf-8
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """Groundspeak GPX formaadile vastava XML-i loomine"""
 from lxml import etree
 from time import gmtime
@@ -7,7 +9,7 @@ from time import strftime
 
 def makeGpx(cachedata):
     """Groundspeak GPX formaadile vastava XML-i loomine"""
-    
+
     # XML namespace and header
     XMLSchInst = "http://www.w3.org/2001/XMLSchema-instance"
     XSLSchInst = "http://www.w3.org/2001/XMLSchema"
@@ -109,7 +111,7 @@ def makeGpx(cachedata):
 
     # Logid
     i = 0
-    
+
     for i in enumerate(cachedata['l_id']):
         logs_log = etree.SubElement(gs_logs, "{" + gsurl + "}log")
         logs_log.attrib['id'] = list(cachedata['l_id'])[i[0]].encode('ascii', 'xmlcharrefreplace')

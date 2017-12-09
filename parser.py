@@ -1,8 +1,11 @@
-# coding=utf-8
-"""Geopeitus.ee aardelehelt aardeinfo väljalugemiseks ja teisendamiseks
-   Groundspeak GPX formaadile vastavateks väärtusteks
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-   
+    Geopeitus.ee aardelehelt aardeinfo väljalugemiseks ja teisendamiseks
+    Groundspeak GPX formaadile vastavateks väärtusteks
+"""
+
 from lxml import etree
 from lxml import html
 from datetime import datetime
@@ -10,7 +13,7 @@ from datetime import datetime
 
 def getNumFromUrl(inStr):
     """Funktsioon tagastab URL-i põhjal aarde ID"""
-    
+
     cache_id = ''
     if len(inStr) >= 0 and len(inStr) <= 4:
         try:
@@ -35,7 +38,7 @@ def getNumFromUrl(inStr):
 
 def valueMapper(parsedType, parsedValue):
     """Funktsioon teisendab veebist loetud väärtused XML-i jaoks sobivaks"""
-    
+
     cacheType = {"Tavaline aare": "Traditional Cache",
                  "Mõistatusaare": "Mystery Cache",
                  "Multiaare": "Multi Cache",
@@ -86,14 +89,18 @@ def isValueDate(string, fmt):
         return None
 
 
-def extractCacheInfo(cacheHtml, link, logCount):
+def extractCacheInfo(cacheHtml, link, logCount=10):
     """Peameetod andmete lugemiseks ja parsimiseks HTML-ist"""
-    
+
+    if(cacheHtml == b'<pre>DB Error: syntax error'):
+        print('Parser: Vigane sisend! (sellise lingi peal pole aaret?)')
+        return None
+
     tree = html.fromstring(cacheHtml)
 
     # Aarde nimi
     cacheName = tree.xpath('//div[@class="cacheinfo"]/div/h1/text()')[1].lstrip('\r\n').rstrip('\r\n')
-    
+
     # Aarde koordinaadid
     cacheLoc = tree.xpath('//div[@class="cacheinfo"]/table/tr[3]/td/b[1]/text()')[0]
     cacheLocN = cacheLoc[:9].replace(',', '.').lstrip(' ')
@@ -102,15 +109,16 @@ def extractCacheInfo(cacheHtml, link, logCount):
     # Aarde tüüp
     cacheType = tree.xpath('//div[@class="cacheinfo"]/table/tr[5]/td/b[1]/text()')[0]
     cacheType = valueMapper('cacheType', [cacheType])[0]
-    
+
     # Aarde keerukus ja maastik
     cacheDif = tree.xpath('//div[@class="cacheinfo"]/table/tr[6]/td/text()')[0]
     cacheHid = cacheDif[10:14]
     cacheTerr = cacheDif[23:]
-    
+
     # Aarde suurus
     cacheSize = tree.xpath('//div[@class="cacheinfo"]/table/tr[6]/td/text()')[1]
-    cacheSize = valueMapper('cacheSize', [cacheSize])
+    cacheSize = cacheSize.lstrip(' ')
+    cacheSize = valueMapper('cacheSize', [cacheSize])[0]
 
     # Aarde saadavus / staatus
     cacheStatus = list(tree.xpath('//div[@class="cacheinfo"]/div/h1[2]/font/text()') or '')
@@ -119,13 +127,19 @@ def extractCacheInfo(cacheHtml, link, logCount):
     if len(cacheStatus) > 0:
         cacheAvail = ''.join(valueMapper('cacheAvailable', [cacheStatus[0]]))
         cacheArch = ''.join(valueMapper('cacheArchived', [cacheStatus[0]]))
-    
+
     # Aarde vihje
-    cacheHint = tree.xpath('//span[@id="cachehint"]/text()') or '-'
+    cacheHint = tree.xpath('//span[@id="cachehint"]/text()')
+    if len(cacheHint) > 1:
+        cacheHint = ''.join(cacheHint).replace('\r\n', ' ')
+    elif len(cacheHint) == 1:
+        cacheHint = cacheHint[0]
+    else:
+        cacheHint = '-'
 
     # Aarde peitja info
     cachePlaced = tree.xpath('//div[@class="cacheinfo"]/div/p/text()')[0]
-    cachePlDt = isValueDate(cachePlaced[7:17],'%d.%m.%Y')
+    cachePlDt = isValueDate(cachePlaced[7:17], '%d.%m.%Y')
     cachePlBy = cachePlaced[18:(cachePlaced.index('[') - 1)] or '?'
     cacheOwner = cachePlaced[cachePlaced.index('[') + 1:cachePlaced.index(']')]
 
@@ -135,43 +149,36 @@ def extractCacheInfo(cacheHtml, link, logCount):
     # Aarde kirjeldus HTML vormingus
     cacheDesc = str('')
     for elem in tree.xpath('//div[@class="cache-description"]'):
-        cacheDesc = cacheDesc + str(etree.tostring(elem),'ascii').rstrip('\r\n')
+        cacheDesc = cacheDesc + str(etree.tostring(elem), 'ascii').rstrip('\r\n')
 
     # Aarde kirjeldus tekstina
     cacheDescNoTags = str('')
-    cacheDescNoTags=''.join(html.fromstring(cacheDesc).itertext())
-
-    # Vaikimisi tagastame 10 logi
-    if (not isinstance(logCount, int)) or logCount == None:
-        locCount=10
+    cacheDescNoTags = ''.join(html.fromstring(cacheDesc).itertext())
 
     # Logide ID väärtused
     logIds = tree.xpath('//div[@class="eventlog"]/a[1]/@name')[:logCount]
-    
+
     # Logide autorid
     logFinders0 = tree.xpath('//div[@class="eventlog"]/b[2]/text()')
     logFinders = logFinders0[:logCount]
-                                                
+
     # Logide tüübid
     logTypes = valueMapper('logType', tree.xpath(
         '//div[@class="eventlog"]/a[1]/img[1]/@src'))[:logCount]
-      
+
     # Logide kuupäevad
     logDates = tree.xpath('//div[@class="eventlog"]/a[1]/@title')[:logCount]
-    logDates = list(map(lambda x: isValueDate(
-        x[-19:], '%d.%m.%Y %H:%M:%S'), logDates))
-           
+    logDates = list([isValueDate(
+        x[-19:], '%d.%m.%Y %H:%M:%S') for x in logDates])
+
     # Logide tekstid
     logTexts = []
 
     for i, elem in enumerate(tree.xpath('//div[@class="eventlog"]')[:logCount], 1):
         logTexts.append(
             ''.join(
-                tree.xpath(
-                    '//div[@class="eventlog"][' +
-                    str(i) +
-                    ']/p/text()')))
-    
+                tree.xpath('//div[@class="eventlog"][' + str(i) + ']/p/text()')))
+
     # Aarde ID väärtus
     cacheID = link[link.rfind('/') + 1:]
 
@@ -183,7 +190,7 @@ def extractCacheInfo(cacheHtml, link, logCount):
                  'Terrain': cacheTerr,
                  'Size': cacheSize,
                  'Desc': cacheDesc,
-                 'DescPlain':cacheDescNoTags,
+                 'DescPlain': cacheDescNoTags,
                  'Hint': cacheHint,
                  'Avail': cacheAvail,
                  'Arch': cacheArch,
