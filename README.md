@@ -22,7 +22,7 @@ Programm väljastab käsureale kopeeritaval kujul aarde põhiinfo.
 * Garmin Etrex 30 (Software v 2.90)
 
 ## Changelog
-
+* 0.3.1 - Täpsustatud logitüüpe.
 * 0.3.0 - lisatud geomine_oneline, mis salvestab aarde põhiinfo tekstireana
 * 0.2.0 - koodibaas viidud üle Python 3.6-le
 * 0.1.0 - esimene versioon (Python 2.7)

@@ -9,7 +9,7 @@ import sys
 
 
 global version
-version = '0.3.0'
+version = '0.3.1'
 
 print(('### Geopeitus.ee GPX failide koostaja v:' + version + ' ###'))
 print('-----------------------------------------')
@@ -35,7 +35,7 @@ while True:
     cacheHtml = cacheRaw[1]
     cacheLink = cacheRaw[0]
 
-    cachedata = parser.extractCacheInfo(cacheHtml, cacheLink, 10)
+    cachedata = parser.extractCacheInfo(cacheHtml, cacheLink, 15)
     gpx = gpxmaker.makeGpx(cachedata)
 
     try:

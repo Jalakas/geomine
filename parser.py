@@ -60,11 +60,11 @@ def valueMapper(parsedType, parsedValue):
                  "suur": "Large"}
 
     logType = {"/ug/icons/emoticon_smile.png": "Found it",
-               "/ug/icons/emoticon_unhappy2.png": "Ei leidnud",
-               "/ug/icons/comment.png": "Kommenteeris",
-               "/ug/icons/wrench_orange.png": "Soovis hooldamist",
-               "/ug/icons/wrench.png": "Hooldas",
-               "/ug/icons/exclamation.png": "Soovis arhiveerimist"}
+               "/ug/icons/emoticon_unhappy2.png": "Didn't find it",
+               "/ug/icons/comment.png": "Write note",
+               "/ug/icons/wrench_orange.png": "Needs Maintenance",
+               "/ug/icons/wrench.png": "Owner Maintenance",
+               "/ug/icons/exclamation.png": "Temporarily Disable Listing"}
 
     if parsedType == "cacheAvailable":
         return list(map(cacheAvailable.get, parsedValue))
