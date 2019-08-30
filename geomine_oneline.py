@@ -48,7 +48,8 @@ else:
     print(("Asume hankima andmeid aadressilt: " + aardelink + ""))
 
 # hangime andmed
-cacheRaw = makereq.getCacheHtml(aardenumber)
+session=makereq.gpLogin()
+cacheRaw = makereq.getCacheHtml(aardenumber, session)
 cacheHtml = cacheRaw[1]
 cacheLink = cacheRaw[0]
 cacheData = parser.extractCacheInfo(cacheHtml, cacheLink, 10)
