@@ -60,11 +60,11 @@ def valueMapper(parsedType, parsedValue):
                  "suur": "Large"}
 
     logType = {"/ug/icons/emoticon_smile.png": "Found it",
-               "/ug/icons/emoticon_unhappy2.png": "Ei leidnud",
-               "/ug/icons/comment.png": "Kommenteeris",
-               "/ug/icons/wrench_orange.png": "Soovis hooldamist",
-               "/ug/icons/wrench.png": "Hooldas",
-               "/ug/icons/exclamation.png": "Soovis arhiveerimist"}
+               "/ug/icons/emoticon_unhappy2.png": "Didn't find it",
+               "/ug/icons/comment.png": "Write note",
+               "/ug/icons/wrench_orange.png": "Needs Maintenance",
+               "/ug/icons/wrench.png": "Owner Maintenance",
+               "/ug/icons/exclamation.png": "Temporarily Disable Listing"}
 
     if parsedType == "cacheAvailable":
         return list(map(cacheAvailable.get, parsedValue))
@@ -96,6 +96,7 @@ def extractCacheInfo(cacheHtml, link, logCount=10):
         print('Parser: Vigane sisend! (sellise lingi peal pole aaret?)')
         return None
 
+    ##print(cacheHtml)
     tree = html.fromstring(cacheHtml)
 
     # Aarde nimi
@@ -112,8 +113,8 @@ def extractCacheInfo(cacheHtml, link, logCount=10):
 
     # Aarde keerukus ja maastik
     cacheDif = tree.xpath('//div[@class="cacheinfo"]/table/tr[6]/td/text()')[0]
-    cacheHid = cacheDif[10:14]
-    cacheTerr = cacheDif[23:]
+    cacheHid = cacheDif[10:14].lstrip(' ').rstrip(' ')
+    cacheTerr = cacheDif[23:].lstrip(' ').rstrip(' ')
 
     # Aarde suurus
     cacheSize = tree.xpath('//div[@class="cacheinfo"]/table/tr[6]/td/text()')[1]
@@ -138,10 +139,10 @@ def extractCacheInfo(cacheHtml, link, logCount=10):
         cacheHint = '-'
 
     # Aarde peitja info
-    cachePlaced = tree.xpath('//div[@class="cacheinfo"]/div/p/text()')[0]
-    cachePlDt = isValueDate(cachePlaced[7:17], '%d.%m.%Y')
-    cachePlBy = cachePlaced[18:(cachePlaced.index('[') - 1)] or '?'
-    cacheOwner = cachePlaced[cachePlaced.index('[') + 1:cachePlaced.index(']')]
+    cachePlaced = tree.xpath('//div[@class="cacheinfo"]/div/p[1]/text()')[0]
+    cachePlDt = isValueDate(cachePlaced[7:15], '%d.%m.%y')
+    cachePlBy = cachePlaced[16:(cachePlaced.index('[') - 1)] or '?'
+    cacheOwner = tree.xpath('//div[@class="cacheinfo"]/div/p[1]/a/text()')[0]
 
     # Aarde maakond
     cacheState = tree.xpath('//div[@class="cacheinfo"]/table/tr[5]/td/b[2]/text()')[0]
@@ -169,7 +170,7 @@ def extractCacheInfo(cacheHtml, link, logCount=10):
     # Logide kuupäevad
     logDates = tree.xpath('//div[@class="eventlog"]/a[1]/@title')[:logCount]
     logDates = list([isValueDate(
-        x[-19:], '%d.%m.%Y %H:%M:%S') for x in logDates])
+        x[-17:], '%d.%m.%y %H:%M.%S') for x in logDates])
 
     # Logide tekstid
     logTexts = []
@@ -205,4 +206,5 @@ def extractCacheInfo(cacheHtml, link, logCount=10):
                  'l_type': logTypes,
                  'l_date': logDates,
                  'l_text': logTexts}
+                 
     return cacheData

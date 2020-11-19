@@ -9,7 +9,7 @@ import sys
 
 
 global version
-version = '0.2.0'
+version = '0.4.0'
 
 print(('### Geopeitus.ee GPX failide koostaja v:' + version + ' ###'))
 print('-----------------------------------------')
@@ -20,6 +20,8 @@ if sys.version_info[0] != 3:
 if sys.version_info[1] != 6:
     print('   Hoiatus! Ei ole Python 3.6. Programm ei pruugi töötada korrektselt!')
 
+#Esimest korda logime sisse
+session=makereq.gpLogin()
 
 while True:
     print('   Sisesta link või aarde number: ')
@@ -31,11 +33,11 @@ while True:
     if cacheNum is None:
         print('   Arusaamatu sisend!\n   Sisesta aare kujul \'1043\' või \'http://www.geopeitus.ee/aare/1043\'')
         continue
-    cacheRaw = makereq.getCacheHtml(cacheNum)
+    cacheRaw = makereq.getCacheHtml(cacheNum, session)
     cacheHtml = cacheRaw[1]
     cacheLink = cacheRaw[0]
 
-    cachedata = parser.extractCacheInfo(cacheHtml, cacheLink, 10)
+    cachedata = parser.extractCacheInfo(cacheHtml, cacheLink, 15)
     gpx = gpxmaker.makeGpx(cachedata)
 
     try:
